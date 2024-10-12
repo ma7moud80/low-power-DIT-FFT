@@ -1,17 +1,18 @@
-package monitor_pkg;
+`ifndef _MONITOR
+
+`define _MONITOR
 
     import uvm_pkg::*;
-    import seq_item_pkg::*;
+    `include "seq_item.sv"
     `include "uvm_macros.svh"
+    `include "parameters.v"
 
-    `include "config.sv"
-
-    class monitor#(parameter DATA_WIDTH=`DATA_WIDTH, parameter ADDR_WIDTH=`ADDR_WIDTH) extends uvm_monitor;
+    class monitor#(parameter WIDTH=`DATA_WIDTH) extends uvm_monitor;
         `uvm_component_utils(monitor)
 
 
-        seq_item#(DATA_WIDTH,ADDR_WIDTH) item;
-        virtual data_if#(DATA_WIDTH,ADDR_WIDTH) vif;
+        seq_item#(WIDTH) item;
+        virtual data_if#(WIDTH) vif;
 
         uvm_analysis_port#(seq_item) sender;
 
@@ -21,10 +22,10 @@ package monitor_pkg;
 
         function void build_phase(uvm_phase phase);
             super.build_phase(phase);
-            if(!uvm_config_db#(virtual data_if#(DATA_WIDTH,ADDR_WIDTH))::get(this,"","vif",vif))begin
+            if(!uvm_config_db#(virtual data_if#(WIDTH))::get(this,"","vif",vif))begin
                 `uvm_fatal(get_name(),"the data if cant be fetched from the db");
             end
-            item = seq_item#(DATA_WIDTH,ADDR_WIDTH)::type_id::create("item");
+            item = seq_item#(WIDTH)::type_id::create("item");
             sender = new("sender",this);
         endfunction
 
@@ -33,29 +34,23 @@ package monitor_pkg;
             forever begin
                 sample;
                 `uvm_info(get_name(),"following item is sampled from DUT",UVM_NONE)
-                `uvm_info(get_name(),$sformatf("the if data_out is %h",vif.data_out),UVM_NONE)
                 item.print();
                 sender.write(item);
             end
-
+            
         endtask
-
+        
         task sample();
             @(posedge vif.clk)
-            // item.rstn = vif.rstn;
-            // item.data_in = vif.data_in;
-            // item.adress = vif.adress;
-            // item.we = vif.we;
-            // item.re = vif.re;
-            // item.data_out = vif.data_out;
-            item.rstn = vif.mon_cb.rstn;
-            item.data_in = vif.mon_cb.data_in;
-            item.adress = vif.mon_cb.adress;
-            item.we = vif.mon_cb.we;
-            item.re = vif.mon_cb.re;
-            item.data_out = vif.mon_cb.data_out;
+            item.rstn = vif.rstn;
+            item.vld_in = vif.vld_in;
+            item.start = vif.start;
+            item.in = vif.in;
+            item.out_r = vif.out_r;
+            item.out_i = vif.out_i;
+            item.vld_out = vif.vld_out;
         endtask
 
     endclass
     
-endpackage
+`endif

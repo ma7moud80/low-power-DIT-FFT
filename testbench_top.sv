@@ -1,22 +1,30 @@
 import uvm_pkg::*;
-import test1_pkg::*;
 `include "uvm_macros.svh"
-`include "memory.sv"
-`include "config.sv"
+`include "low_power_fft.v"
+`include "parameters.v"
+`include "test1.sv"
 
 module tb_top;
     
     logic clk;
-    data_if#(`DATA_WIDTH,`ADDR_WIDTH) myif(clk);
-    memory#(`DATA_WIDTH,`ADDR_WIDTH) dut(.clk(clk), .rstn(myif.rstn), .data_in(myif.data_in), .adress(myif.adress), .we(myif.we), .re(myif.re), .data_out(myif.data_out));
-    test1#(`DATA_WIDTH,`ADDR_WIDTH) mytest;
+    data_if#(`DATA_WIDTH) myif(clk);
+    low_power_fft#(`DATA_WIDTH) dut(
+    .rstn(myif.rstn),
+    .clk(myif.clk),
+    .start(myif.start),
+    .vld_in(myif.vld_in),
+    .in(myif.in),    
+    .out_r(myif.out_r),     
+    .out_i(myif.out_i),     
+    .vld_out(myif.vld_out));
+    test1#(`DATA_WIDTH) mytest;
 
 
-    always #10 clk = ~clk;
+    always #(`CLK_PER/2) clk = ~clk;
 
     initial begin
         clk = 0;
-        uvm_config_db#(virtual data_if#(`DATA_WIDTH,`ADDR_WIDTH))::set(null, "my_test", "vif", myif);
+        uvm_config_db#(virtual data_if#(`DATA_WIDTH))::set(null, "my_test", "vif", myif);
         mytest = new("my_test",null);
         run_test();
     end

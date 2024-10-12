@@ -1,15 +1,17 @@
-package driver_pkg;
+`ifndef _DRIVER
+
+`define _DRIVER
 
     import uvm_pkg::*;
-    import seq_item_pkg::*;
+    `include "seq_item.sv"
     `include "uvm_macros.svh"
-    `include "config.sv"
+    `include "parameters.v"
 
-    class driver#(parameter DATA_WIDTH=`DATA_WIDTH, parameter ADDR_WIDTH=`ADDR_WIDTH) extends uvm_driver#(seq_item#(DATA_WIDTH,ADDR_WIDTH));
+    class driver#(parameter WIDTH=`DATA_WIDTH) extends uvm_driver#(seq_item#(WIDTH));
         `uvm_component_utils(driver)
 
-        seq_item#(DATA_WIDTH,ADDR_WIDTH) item;
-        virtual data_if#(DATA_WIDTH,ADDR_WIDTH) vif;
+        seq_item#(WIDTH) item;
+        virtual data_if#(WIDTH) vif;
 
         function new(string name="driver", uvm_component parent=null);
             super.new(name,parent);
@@ -17,10 +19,10 @@ package driver_pkg;
 
         function void build_phase(uvm_phase phase);
             super.build_phase(phase);
-            if(!uvm_config_db#(virtual data_if#(DATA_WIDTH,ADDR_WIDTH))::get(this,"","vif",vif))begin
+            if(!uvm_config_db#(virtual data_if#(WIDTH))::get(this,"","vif",vif))begin
                 `uvm_fatal(get_name(),"the data if cant be fetched from the db");
             end
-            item = seq_item#(DATA_WIDTH,ADDR_WIDTH)::type_id::create("item");
+            item = seq_item#(WIDTH)::type_id::create("item");
         endfunction
 
         task run_phase(uvm_phase phase);
@@ -36,20 +38,13 @@ package driver_pkg;
         endtask
 
         task drive();
-            @(posedge vif.clk)
-            // vif.rstn <= item.rstn;
-            // vif.data_in <= item.data_in;
-            // vif.adress <= item.adress;
-            // vif.we <= item.we;
-            // vif.re <= item.re;
-            vif.drv_cb.rstn <= item.rstn;
-            vif.drv_cb.data_in <= item.data_in;
-            vif.drv_cb.adress <= item.adress;
-            vif.drv_cb.we <= item.we;
-            vif.drv_cb.re <= item.re;
-            //vif.drv_cb.data_out <= item.data_out;
+            //@(posedge vif.clk)
+            vif.rstn <= item.rstn;
+            vif.vld_in <= item.vld_in;
+            vif.start <= item.start;
+            vif.in <= item.in;
         endtask
 
     endclass
     
-endpackage
+`endif

@@ -5,9 +5,9 @@ module fft_ref_tb ();
 parameter N = 8;
 parameter width = 16;
 
-int in [N-1:0];
-real out_real [N-1:0];
-real out_imag [N-1:0];
+bit[8:0] in [N-1:0];
+bit [8:0] out_real [N-1:0];
+bit [8:0] out_imag [N-1:0];
 
 
 initial begin
@@ -22,11 +22,11 @@ initial begin
           fft_ref(in, out_real, out_imag);
           
           for (int i=0; i<N; ++i) begin
-              bit [8:0] out_real_b;
-              bit [8:0] out_imag_b;
-            out_real_b = out_real[i];
-            out_imag_b = out_imag[i];
-            $display("out_real : %b | out_imag : %b", out_real_b, out_imag_b);
+              //bit [8:0] out_real_b;
+              //bit [8:0] out_imag_b;
+            //out_real_b = out_real[i];
+            //out_imag_b = out_imag[i];
+            $display("out_real : %b | out_imag : %b", out_real[i], out_imag[i]);
         end
 end
 

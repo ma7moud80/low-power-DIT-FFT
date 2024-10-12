@@ -1,47 +1,33 @@
+`ifndef _DATA_IF
+
+`define _DATA_IF
+
 import uvm_pkg::*;
-`include "uvm_macros.svh"
-`include "config.sv"
+`include "UVM_MACROS.svh"
+`include "parameters.v"
 
-interface data_if #(parameter DATA_WIDTH=`DATA_WIDTH, parameter ADDR_WIDTH=`ADDR_WIDTH) (input logic clk);
-logic                     rstn;
-logic                     we;
-logic                     re; 
-logic [ADDR_WIDTH-1:0]  adress;
-logic [DATA_WIDTH-1:0]    data_in;
-logic [DATA_WIDTH-1:0]    data_out;
+interface data_if #(parameter WIDTH = `DATA_WIDTH)(
+    input logic clk
+);
 
-clocking drv_cb @(posedge clk);
-  default  input #1 output #1;
-    output rstn;
-    output we;
-    output re;
-    output adress;
-    output data_in;
-    input data_out;
-endclocking
+logic                         rstn;
+logic                         vld_in;
+logic                         start;
+logic  [WIDTH-1:0]            in;
+logic  [WIDTH-1:0]            out_r;
+logic  [WIDTH-1:0]            out_i;
+logic                         vld_out;
 
-clocking mon_cb @(posedge clk);
-  default  input #1 output #1;
-    input rstn;
-    input we;
-    input re;
-    input adress;
-    input data_in;
-    input data_out;
-endclocking
 
-task rst_data();
-  rstn = 0;
-  @(posedge clk)
-  @(posedge clk)
-  rstn = 1;
-endtask
-
-// modport driver (
-//    clocking drv_cb, input clk, rstn
-// );
-// modport monitor (
-//    clocking mon_cb, input clk, rstn
-// );
+// task rst_data();
+//     rstn = 0;
+//     start = 0;
+//     vld_in = 0;
+//     in = 0;
+//     #`CLK_PER
+//     rstn = 1;
+// endtask
 
 endinterface
+
+`endif
